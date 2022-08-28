@@ -4,7 +4,9 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp">
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" 
+  IgnorableNamespaces="uap mp uap3 uap5">
 
   <Identity
     Name="0118421e-a4f4-4596-b3c7-44d05a2aa27c"
@@ -40,7 +42,21 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
-    </Application>
+		<Extensions>
+			<uap:Extension Category="windows.appService">
+				<uap:AppService Name="com.microsoft.pkar.ComicStrip"/>
+			</uap:Extension>
+			<uap5:Extension
+			  Category="windows.appExecutionAlias"
+			  Executable="$targetnametoken$.exe"
+			  EntryPoint="$targetnametoken$.App">
+				<uap5:AppExecutionAlias>
+					<uap5:ExecutionAlias Alias="$targetnametoken$.exe" />
+				</uap5:AppExecutionAlias>
+			</uap5:Extension>
+
+		</Extensions>
+	</Application>
   </Applications>
 
   <Capabilities>

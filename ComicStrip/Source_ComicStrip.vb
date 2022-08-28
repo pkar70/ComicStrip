@@ -89,7 +89,7 @@
         sUrl = oNew.sUrl & "/" & oNew.sIdFirstPicture
         sPage = Await HttpPageAsync(sUrl, "getting stats", False)
         If sPage = "" Then
-            Await DialogBox("cannot get first picture?")
+            Await DialogBoxAsync("cannot get first picture?")
         Else
             iInd = sPage.IndexOf("item-comic-image")
             iInd = sPage.IndexOf("src=", iInd)
@@ -179,6 +179,9 @@
 
     End Function
 
+    ''' <summary>
+    ''' zwraca liczbę obrazków, albo -1 error, -2 error na początku (zapewne brak DNS jeszcze)
+    ''' </summary>
     Protected Overrides Async Function DownloadBatchPics(uiProgBar As ProgressBar, oChannel As JedenChannel, bFillHist As Boolean, iMaxBatchSize As Integer, bShowMsg As Boolean) As Task(Of Integer)
         Dim iNewCnt As Integer = 0
         Dim sPage As String
@@ -206,15 +209,15 @@
                 sNextUrl = sNextUrl & oChannel.sIdFirstPicture.Replace("-", "/")
             Else
                 sNextUrl = sNextUrl & oChannel.sIdGapStart.Replace("-", "/")
-                End If
-            Else
-                sNextUrl = sNextUrl & oChannel.sIdLastDownload.Replace("-", "/")
+            End If
+        Else
+            sNextUrl = sNextUrl & oChannel.sIdLastDownload.Replace("-", "/")
         End If
 
-        sPage = Await HttpPageAsync(sNextUrl, "downloading newer files (before loop)", bShowMsg)
+        sPage = Await HttpPageAsync(sNextUrl, "downloading newer files (before loop) - " & sNextUrl, bShowMsg)
         If sPage = "" Then
-            MakeToast("Requested page:", sNextUrl)
-            Return -1    ' przeciez powinno byc, bo juz raz sie to sciagnęło!
+            ' MakeToast("Requested page:", sNextUrl) ' bo już za dużo tych toastów błędów.
+            Return -2    ' przeciez powinno byc, bo juz raz sie to sciagnęło!
         End If
 
         While iMaxBatchSize > iNewCnt

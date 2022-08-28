@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ComixComparer.MainPage">
+
+    <Grid ColumnDefinitions="Auto,*" RowDefinitions="*,*,Auto">
+
+        <Image Grid.Row="0" Grid.Column="1" x:Name="uiPicture0"/>
+        <Image Grid.Row="1" Grid.Column="1" x:Name="uiPicture1"/>
+
+        <DatePicker Grid.Row="0" Grid.Column="0" x:Name="uiDate0" VerticalOptions="Start" HorizontalOptions="Center" Date="1975-08-19" Margin="5,20,5,5"/>
+        <Button Grid.Row="0" Grid.Column="0" VerticalOptions="End" Margin="5,5,5,20" Clicked="uiDel0_Click" Text="DEL" HorizontalOptions="Center" />
+
+        <DatePicker Grid.Row="1" Grid.Column="0" x:Name="uiDate1" VerticalOptions="Start" HorizontalOptions="Center" Date="2022-08-16" Margin="5,20,5,5" />
+        <Button Grid.Row="1" Grid.Column="0" VerticalOptions="End" Margin="5,5,5,20" Clicked="uiDel1_Click" Text="DEL" HorizontalOptions="Center" />
+
+        <Button Grid.Row="2" Grid.Column="0" Margin="15,10,15,10" Clicked="uiGoPrev_Click" Text="&lt;" HorizontalOptions="Start" />
+        <Button Grid.Row="2" Grid.Column="1" Margin="15,10,15,10" Clicked="uiGoNext_Click" Text="&gt;" HorizontalOptions="End" />
+
+
+    </Grid>
+
+</ContentPage>

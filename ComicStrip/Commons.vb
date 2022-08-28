@@ -74,31 +74,29 @@
 
 End Module
 
-Module ChannelList
 
-End Module
-
-
+' bo to teraz jest w pkarmodule
+#If False Then
 Module Extensions
-        <Extension()>
-        Public Async Function WriteAllTextAsync(ByVal oFile As Windows.Storage.StorageFile, sTxt As String) As Task
-            Dim oStream As Stream = Await oFile.OpenStreamForWriteAsync
-            Dim oWriter As Windows.Storage.Streams.DataWriter = New Windows.Storage.Streams.DataWriter(oStream.AsOutputStream)
-            oWriter.WriteString(sTxt)
-            Await oWriter.FlushAsync()
-            Await oWriter.StoreAsync()
-            oWriter.Dispose()
-            'oStream.Flush()
-            'oStream.Dispose()
-        End Function
+    <Extension()>
+    Public Async Function WriteAllTextAsync(ByVal oFile As Windows.Storage.StorageFile, sTxt As String) As Task
+        Dim oStream As Stream = Await oFile.OpenStreamForWriteAsync
+        Dim oWriter As Windows.Storage.Streams.DataWriter = New Windows.Storage.Streams.DataWriter(oStream.AsOutputStream)
+        oWriter.WriteString(sTxt)
+        Await oWriter.FlushAsync()
+        Await oWriter.StoreAsync()
+        oWriter.Dispose()
+        'oStream.Flush()
+        'oStream.Dispose()
+    End Function
 
-        <Extension()>
-        Public Async Function WriteAllTextToFileAsync(ByVal oFold As Windows.Storage.StorageFolder, sFileName As String, sTxt As String, Optional oOption As Windows.Storage.CreationCollisionOption = Windows.Storage.CreationCollisionOption.FailIfExists) As Task
-            Dim oFile As Windows.Storage.StorageFile = Await oFold.CreateFileAsync(sFileName, oOption)
-            If oFile Is Nothing Then Return
+    <Extension()>
+    Public Async Function WriteAllTextToFileAsync(ByVal oFold As Windows.Storage.StorageFolder, sFileName As String, sTxt As String, Optional oOption As Windows.Storage.CreationCollisionOption = Windows.Storage.CreationCollisionOption.FailIfExists) As Task
+        Dim oFile As Windows.Storage.StorageFile = Await oFold.CreateFileAsync(sFileName, oOption)
+        If oFile Is Nothing Then Return
 
-            Await oFile.WriteAllTextAsync(sTxt)
-        End Function
+        Await oFile.WriteAllTextAsync(sTxt)
+    End Function
 
     <Extension()>
     Public Async Function ReadAllTextAsync(ByVal oFile As Windows.Storage.StorageFile) As Task(Of String)
@@ -121,3 +119,4 @@ Module Extensions
     End Function
 
 End Module
+#End If

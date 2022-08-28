@@ -40,7 +40,7 @@
 
     Private Async Function SaveChannelsData() As Task
         If _kanaly.Count < 1 Then
-            If Not Await DialogBoxYN("Pusta lista! Zapisać ją?") Then Return
+            If Not Await DialogBoxYNAsync("Pusta lista! Zapisać ją?") Then Return
         End If
 
         Dim sTxt As String = Newtonsoft.Json.JsonConvert.SerializeObject(_kanaly)
@@ -56,7 +56,7 @@
     End Sub
 
     Private Async Sub uiAdd_Click(sender As Object, e As RoutedEventArgs)
-        Dim sUrl As String = Await DialogBoxInput("Podaj link do pasków:")
+        Dim sUrl As String = Await DialogBoxInputDirectAsync("Podaj link do pasków:")
         If sUrl = "" Then Return
 
         For Each oItem As JedenChannel In _kanaly

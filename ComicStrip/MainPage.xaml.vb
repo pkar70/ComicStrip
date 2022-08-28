@@ -8,58 +8,59 @@ Public NotInheritable Class MainPage
     Private _oChannel As JedenChannel
     Private _sPicShownPath As String
 
-    Private Sub ProgresywnyRing(sStart As Boolean)
-        If sStart Then
-            Dim dVal As Double
-            dVal = (Math.Min(uiGrid.ActualHeight, uiGrid.ActualWidth)) / 2
-            uiProcesuje.Width = dVal
-            uiProcesuje.Height = dVal
+    'Private Sub ProgresywnyRing(sStart As Boolean)
+    '    If sStart Then
+    '        Dim dVal As Double
+    '        dVal = (Math.Min(uiGrid.ActualHeight, uiGrid.ActualWidth)) / 2
+    '        uiProcesuje.Width = dVal
+    '        uiProcesuje.Height = dVal
 
-            uiProcesuje.Visibility = Visibility.Visible
-            uiProcesuje.IsActive = True
-        Else
-            uiProcesuje.IsActive = False
-            uiProcesuje.Visibility = Visibility.Collapsed
-        End If
-    End Sub
+    '        uiProcesuje.Visibility = Visibility.Visible
+    '        uiProcesuje.IsActive = True
+    '    Else
+    '        uiProcesuje.IsActive = False
+    '        uiProcesuje.Visibility = Visibility.Collapsed
+    '    End If
+    'End Sub
 
     Private Async Sub uiRefresh_Click(sender As Object, e As RoutedEventArgs)
-        ProgresywnyRing(True)
+        ProgRingShow(True)
         Await App.GetAllFeedsAsync(uiMsg)
-        ProgresywnyRing(False)
+        ProgRingShow(False)
 
     End Sub
 
-    Public Shared Sub UnregisterTriggers()
-        For Each oTask As KeyValuePair(Of Guid, IBackgroundTaskRegistration) In BackgroundTaskRegistration.AllTasks
-            If oTask.Value.Name = "ComicStripTimer" Then oTask.Value.Unregister(True)
-        Next
-    End Sub
-    Public Shared Async Function RegisterTriggers() As Task
+    'Public Shared Sub UnregisterTriggers()
+    '    For Each oTask As KeyValuePair(Of Guid, IBackgroundTaskRegistration) In BackgroundTaskRegistration.AllTasks
+    '        If oTask.Value.Name = "ComicStripTimer" Then oTask.Value.Unregister(True)
+    '    Next
+    'End Sub
+    Public Shared Sub RegisterTriggers()
 
         ' na pewno musza byc usuniete
         UnregisterTriggers()
+        RegisterTimerTrigger(Windows.ApplicationModel.Package.Current.DisplayName & "_Timer", GetSettingsInt("TimerInterval", 60 * 2))
 
-        Dim oBAS As BackgroundAccessStatus
-        oBAS = Await BackgroundExecutionManager.RequestAccessAsync()
+        'Dim oBAS As BackgroundAccessStatus
+        'oBAS = Await BackgroundExecutionManager.RequestAccessAsync()
 
 
-        Dim builder As BackgroundTaskBuilder = New BackgroundTaskBuilder
+        'Dim builder As BackgroundTaskBuilder = New BackgroundTaskBuilder
 
-        If oBAS = BackgroundAccessStatus.AlwaysAllowed Or oBAS = BackgroundAccessStatus.AllowedSubjectToSystemPolicy Then
-            builder.SetTrigger(New TimeTrigger(GetSettingsInt("TimerInterval", 60 * 2), False))
-            builder.Name = "ComicStripTimer"
-            builder.Register()
-        End If
+        'If oBAS = BackgroundAccessStatus.AlwaysAllowed Or oBAS = BackgroundAccessStatus.AllowedSubjectToSystemPolicy Then
+        '    builder.SetTrigger(New TimeTrigger(GetSettingsInt("TimerInterval", 60 * 2), False))
+        '    builder.Name = "ComicStripTimer"
+        '    builder.Register()
+        'End If
 
-    End Function
-    Private Async Sub uiClockRead_Click(sender As Object, e As RoutedEventArgs)
+    End Sub
+    Private Sub uiClockRead_Click(sender As Object, e As RoutedEventArgs)
         If uiClockRead.IsChecked Then
-            Await RegisterTriggers()
+            RegisterTriggers()
         Else
             UnregisterTriggers()
         End If
-        SetSettingsBool("autoRead", uiClockRead.IsChecked)
+        ' SetSettingsBool("autoRead", uiClockRead.IsChecked)
     End Sub
 
 
@@ -73,13 +74,14 @@ Public NotInheritable Class MainPage
     End Sub
 
     Private Async Sub Page_Loaded(sender As Object, e As RoutedEventArgs)
-        uiClockRead.IsChecked = GetSettingsBool("autoRead")
+        ProgRingInit(True, False)
+        uiClockRead.IsChecked = IsTriggersRegistered()
         uiLastRun.Text = GetSettingsString("lastRun")
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", False)
         If oFile Is Nothing Then
             _kanaly = New ObservableCollection(Of JedenChannel)
-            Await DialogBox("Empty channel list")
+            Await DialogBoxAsync("Empty channel list")
         Else
             Dim sTxt As String = Await oFile.ReadAllTextAsync()
             _kanaly = Newtonsoft.Json.JsonConvert.DeserializeObject(sTxt, GetType(ObservableCollection(Of JedenChannel)))
@@ -98,7 +100,7 @@ Public NotInheritable Class MainPage
         uiChannelName.Text = oItem.sFullName
         _oChannel = oItem
 
-        ProgresywnyRing(True)
+        ProgRingShow(True)
 
         If oItem.bEnabled Then
             Await ChangePicture(oItem, oItem.sIdLastDownload)
@@ -106,7 +108,7 @@ Public NotInheritable Class MainPage
             Await ChangePicture(oItem, oItem.sIdFirstPicture)
         End If
 
-        ProgresywnyRing(False)
+        ProgRingShow(False)
 
     End Sub
 
@@ -115,7 +117,7 @@ Public NotInheritable Class MainPage
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", True)
         If oFile Is Nothing Then
-            Await DialogBox("Nie mogę dostać oFile do zapisania kanałów")
+            Await DialogBoxAsync("Nie mogę dostać oFile do zapisania kanałów")
             Return False
         End If
         Dim sTxt As String = Newtonsoft.Json.JsonConvert.SerializeObject(_kanaly)
@@ -128,7 +130,7 @@ Public NotInheritable Class MainPage
     Private Async Sub uiDisableThis_Click(sender As Object, e As RoutedEventArgs)
         Dim oMFI As MenuFlyoutItem = sender
         Dim oItem As JedenChannel = oMFI.DataContext
-        If Not Await DialogBoxYN("Zablokować kanał '" & oItem.sFullName & "' ?") Then Return
+        If Not Await DialogBoxYNAsync("Zablokować kanał '" & oItem.sFullName & "' ?") Then Return
 
         oItem.bEnabled = False
         SaveChannelsAsync()   ' tak, bez await, niech sobie to robi w tle
@@ -151,7 +153,7 @@ Public NotInheritable Class MainPage
         End If
 
         Dim sGapStart As String = oItem.sIdGapStart
-        ProgresywnyRing(True)
+        ProgRingShow(True)
 
         For Each oChann In App.gaSrc
             If oChann.IsUrlSupported(oItem.sUrl) Then
@@ -168,7 +170,7 @@ Public NotInheritable Class MainPage
             End If
         Next
 
-        ProgresywnyRing(False)
+        ProgRingShow(False)
 
     End Sub
 
@@ -188,7 +190,7 @@ Public NotInheritable Class MainPage
     End Sub
 
     Private Async Function ChangePicture(oChannel As JedenChannel, sIdFile As String) As Task
-        ProgresywnyRing(True)
+        ProgRingShow(True)
 
         If oChannel Is Nothing Then oChannel = _oChannel
 
@@ -216,7 +218,7 @@ Public NotInheritable Class MainPage
             _sPicShownPath = oFile.Path
         End If
 
-        ProgresywnyRing(False)
+        ProgRingShow(False)
 
     End Function
 
