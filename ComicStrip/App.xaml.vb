@@ -198,7 +198,7 @@
                 oTB.Text = iNewsCount & " new pics"
             End If
 
-            SetSettingsString("lastRun", DateTime.Now.ToString("yyyy.MM.dd HH:mm"))
+            pkar.SetSettingsString("lastRun", DateTime.Now.ToString("yyyy.MM.dd HH:mm"))
 
             If Not bChannelsDirty Then Return
 

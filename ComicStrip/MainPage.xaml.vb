@@ -39,7 +39,7 @@ Public NotInheritable Class MainPage
 
         ' na pewno musza byc usuniete
         UnregisterTriggers()
-        RegisterTimerTrigger(Windows.ApplicationModel.Package.Current.DisplayName & "_Timer", GetSettingsInt("TimerInterval", 60 * 2))
+        RegisterTimerTrigger(Windows.ApplicationModel.Package.Current.DisplayName & "_Timer", pkar.GetSettingsInt("TimerInterval", 60 * 2))
 
         'Dim oBAS As BackgroundAccessStatus
         'oBAS = Await BackgroundExecutionManager.RequestAccessAsync()
@@ -76,7 +76,7 @@ Public NotInheritable Class MainPage
     Private Async Sub Page_Loaded(sender As Object, e As RoutedEventArgs)
         ProgRingInit(True, False)
         uiClockRead.IsChecked = IsTriggersRegistered()
-        uiLastRun.Text = GetSettingsString("lastRun")
+        uiLastRun.GetSettingsString("lastRun")
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", False)
         If oFile Is Nothing Then
