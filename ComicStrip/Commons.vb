@@ -1,4 +1,6 @@
-﻿Module Commons
+﻿Imports pkar
+
+Module Commons
     Public Async Function GetPicRootDirAsync() As Task(Of Windows.Storage.StorageFolder)
         Try
             Dim oFold As Windows.Storage.StorageFolder = Windows.Storage.KnownFolders.PicturesLibrary
@@ -76,6 +78,7 @@ End Module
 
 
 ' bo to teraz jest w pkarmodule
+' a teraz nawet w Nuget
 #If False Then
 Module Extensions
     <Extension()>

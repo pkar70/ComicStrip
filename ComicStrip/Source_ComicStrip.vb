@@ -30,11 +30,12 @@
         iInd = sUrl.IndexOf("/", 10)
         oNew.sDirName = sUrl.Substring(iInd + 1)
 
-        Dim sPage As String = Await HttpPageAsync(oNew.sUrl & "/about", "getting about", False)
+        'Dim sPage As String = Await vblib.HttpPageAsync(oNew.sUrl & "/about", "getting about", False)
+        Dim sPage As String = Await vblib.HttpPageAsync(oNew.sUrl & "/about")
         Dim sTmp As String
 
         If sPage = "" Then
-            DialogBox("Sorry, cannot get channel about data")
+            vblib.DialogBox("Sorry, cannot get channel about data")
             Return Nothing
         End If
 
@@ -53,7 +54,7 @@
         ' indeksy
         iInd = sPage.IndexOf("data-link=""comic")
         If iInd < 10 Then
-            DialogBox("Sorry, don't see link to current strip")
+            vblib.DialogBox("Sorry, don't see link to current strip")
             Return Nothing
         End If
 
@@ -63,9 +64,10 @@
         sUrl = "https://www.gocomics.com/" & sTmp.Substring(0, iInd)
 
         ' dociągamy dane dotyczące statystyki (indeksy)
-        sPage = Await HttpPageAsync(sUrl, "getting stats", False)
+        'sPage = Await vblib.HttpPageAsync(sUrl, "getting stats", False)
+        sPage = Await vblib.HttpPageAsync(sUrl)
         If sPage = "" Then
-            DialogBox("Sorry, cannot get channel stats data")
+            vblib.DialogBox("Sorry, cannot get channel stats data")
             Return Nothing
         End If
 
@@ -87,9 +89,10 @@
 
         ' oraz pierwszy - tez konieczny do uproszczenia nawigacji
         sUrl = oNew.sUrl & "/" & oNew.sIdFirstPicture
-        sPage = Await HttpPageAsync(sUrl, "getting stats", False)
+        'sPage = Await vblib.HttpPageAsync(sUrl, "getting stats", False)
+        sPage = Await vblib.HttpPageAsync(sUrl)
         If sPage = "" Then
-            Await DialogBoxAsync("cannot get first picture?")
+            Await vblib.DialogBoxAsync("cannot get first picture?")
         Else
             iInd = sPage.IndexOf("item-comic-image")
             iInd = sPage.IndexOf("src=", iInd)
@@ -214,7 +217,8 @@
             sNextUrl = sNextUrl & oChannel.sIdLastDownload.Replace("-", "/")
         End If
 
-        sPage = Await HttpPageAsync(sNextUrl, "downloading newer files (before loop) - " & sNextUrl, bShowMsg)
+        ' sPage = Await vblib.HttpPageAsync(sNextUrl, "downloading newer files (before loop) - " & sNextUrl, bShowMsg)
+        sPage = Await vblib.HttpPageAsync(sNextUrl)
         If sPage = "" Then
             ' MakeToast("Requested page:", sNextUrl) ' bo już za dużo tych toastów błędów.
             Return -2    ' przeciez powinno byc, bo juz raz sie to sciagnęło!
@@ -240,9 +244,9 @@
             iInd = sNextUrl.IndexOf("/", 2)
             sNextUrl = sNextUrl.Substring(iInd + 1)
 
-
             ' strona nastepnego obrazka
-            sPage = Await HttpPageAsync(oChannel.sUrl & "/" & sNextUrl, "downloading newer files (in loop)", bShowMsg)
+            'sPage = Await vblib.HttpPageAsync(oChannel.sUrl & "/" & sNextUrl, "downloading newer files (in loop)", bShowMsg)
+            sPage = Await vblib.HttpPageAsync(oChannel.sUrl & "/" & sNextUrl)
             If sPage = "" Then
                 MakeToast("Requested page:", sNextUrl)
                 Return -1    ' przeciez powinno byc, skoro odczytalismy ten link!

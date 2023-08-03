@@ -1,4 +1,6 @@
-﻿Public NotInheritable Class ComicChannels
+﻿Imports pkar.Uwp.Ext
+
+Public NotInheritable Class ComicChannels
     Inherits Page
 
 
@@ -6,24 +8,24 @@
     Dim _oFold As Windows.Storage.StorageFolder = Windows.Storage.ApplicationData.Current.LocalFolder
 
     Private Sub ProgresywnyRing(sStart As Boolean)
-            If sStart Then
-                Dim dVal As Double
-                dVal = (Math.Min(uiGrid.ActualHeight, uiGrid.ActualWidth)) / 2
-                uiProcesuje.Width = dVal
-                uiProcesuje.Height = dVal
+        If sStart Then
+            Dim dVal As Double
+            dVal = (Math.Min(uiGrid.ActualHeight, uiGrid.ActualWidth)) / 2
+            uiProcesuje.Width = dVal
+            uiProcesuje.Height = dVal
 
-                uiProcesuje.Visibility = Visibility.Visible
-                uiProcesuje.IsActive = True
-            Else
-                uiProcesuje.IsActive = False
-                uiProcesuje.Visibility = Visibility.Collapsed
-            End If
-        End Sub
+            uiProcesuje.Visibility = Visibility.Visible
+            uiProcesuje.IsActive = True
+        Else
+            uiProcesuje.IsActive = False
+            uiProcesuje.Visibility = Visibility.Collapsed
+        End If
+    End Sub
 
 
 
-        Private Async Sub Page_Loaded(sender As Object, e As RoutedEventArgs)
-            uiVers.Text = GetAppVers()
+    Private Async Sub Page_Loaded(sender As Object, e As RoutedEventArgs)
+        uiVers.Text = GetAppVers()
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", False)
         If oFile Is Nothing Then
@@ -39,8 +41,10 @@
     End Sub
 
     Private Async Function SaveChannelsData() As Task
+        'App._kanaly.Save()
+
         If _kanaly.Count < 1 Then
-            If Not Await DialogBoxYNAsync("Pusta lista! Zapisać ją?") Then Return
+            If Not Await vblib.DialogBoxYNAsync("Pusta lista! Zapisać ją?") Then Return
         End If
 
         Dim sTxt As String = Newtonsoft.Json.JsonConvert.SerializeObject(_kanaly)
@@ -56,12 +60,12 @@
     End Sub
 
     Private Async Sub uiAdd_Click(sender As Object, e As RoutedEventArgs)
-        Dim sUrl As String = Await DialogBoxInputDirectAsync("Podaj link do pasków:")
+        Dim sUrl As String = Await vblib.DialogBoxInputDirectAsync("Podaj link do pasków:")
         If sUrl = "" Then Return
 
         For Each oItem As JedenChannel In _kanaly
             If oItem.sUrl = sUrl Then
-                DialogBox("taki kanał już istnieje!")
+                vblib.DialogBox("taki kanał już istnieje!")
                 Return
             End If
         Next
@@ -75,7 +79,7 @@
         Next
 
         If Not bSupported Then
-            DialogBox("nie umiem obsłużyć takiego kanału!")
+            vblib.DialogBox("nie umiem obsłużyć takiego kanału!")
             Return
         End If
 
@@ -93,7 +97,7 @@
         ProgresywnyRing(False)
 
         If oChannel Is Nothing Then
-            DialogBox("Błąd dodawania kanału!")
+            vblib.DialogBox("Błąd dodawania kanału!")
             Return
         End If
 
@@ -118,6 +122,6 @@
     End Sub
 
     Private Sub uiDelChannel_Click(sender As Object, e As RoutedEventArgs)
-        DialogBox("unimplemented jeszcze")
+        vblib.DialogBox("unimplemented jeszcze")
     End Sub
 End Class

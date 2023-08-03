@@ -1,5 +1,8 @@
 ﻿
-Imports Windows.ApplicationModel.Background
+Imports pkar.Uwp.Configs
+Imports pkar.Uwp.Ext
+Imports pkar
+Imports Windows.Storage
 
 Public NotInheritable Class MainPage
     Inherits Page
@@ -39,7 +42,7 @@ Public NotInheritable Class MainPage
 
         ' na pewno musza byc usuniete
         UnregisterTriggers()
-        RegisterTimerTrigger(Windows.ApplicationModel.Package.Current.DisplayName & "_Timer", pkar.GetSettingsInt("TimerInterval", 60 * 2))
+        RegisterTimerTrigger(Windows.ApplicationModel.Package.Current.DisplayName & "_Timer", vblib.GetSettingsInt("TimerInterval", 60 * 2))
 
         'Dim oBAS As BackgroundAccessStatus
         'oBAS = Await BackgroundExecutionManager.RequestAccessAsync()
@@ -78,10 +81,19 @@ Public NotInheritable Class MainPage
         uiClockRead.IsChecked = IsTriggersRegistered()
         uiLastRun.GetSettingsString("lastRun")
 
+        'If App._kanaly Is Nothing Then
+        '    Dim oFold As StorageFolder = Await GetPicRootDirAsync()
+        '    App._kanaly = New BaseList(Of JedenChannel)(oFold.Path, "channels.json")
+        '    App._kanaly.Load()
+
+        '    If App._kanaly.Count = 0 Then Await vblib.DialogBoxAsync("Empty channel list")
+
+        'End If
+
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", False)
         If oFile Is Nothing Then
             _kanaly = New ObservableCollection(Of JedenChannel)
-            Await DialogBoxAsync("Empty channel list")
+            Await vblib.DialogBoxAsync("Empty channel list")
         Else
             Dim sTxt As String = Await oFile.ReadAllTextAsync()
             _kanaly = Newtonsoft.Json.JsonConvert.DeserializeObject(sTxt, GetType(ObservableCollection(Of JedenChannel)))
@@ -113,11 +125,12 @@ Public NotInheritable Class MainPage
     End Sub
 
     Public Async Function SaveChannelsAsync() As Task(Of Boolean)
+        'App._kanaly.Save()
         If _kanaly.Count < 1 Then Return False
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", True)
         If oFile Is Nothing Then
-            Await DialogBoxAsync("Nie mogę dostać oFile do zapisania kanałów")
+            Await vblib.DialogBoxAsync("Nie mogę dostać oFile do zapisania kanałów")
             Return False
         End If
         Dim sTxt As String = Newtonsoft.Json.JsonConvert.SerializeObject(_kanaly)
@@ -130,7 +143,7 @@ Public NotInheritable Class MainPage
     Private Async Sub uiDisableThis_Click(sender As Object, e As RoutedEventArgs)
         Dim oMFI As MenuFlyoutItem = sender
         Dim oItem As JedenChannel = oMFI.DataContext
-        If Not Await DialogBoxYNAsync("Zablokować kanał '" & oItem.sFullName & "' ?") Then Return
+        If Not Await vblib.DialogBoxYNAsync("Zablokować kanał '" & oItem.sFullName & "' ?") Then Return
 
         oItem.bEnabled = False
         SaveChannelsAsync()   ' tak, bez await, niech sobie to robi w tle
@@ -140,7 +153,7 @@ Public NotInheritable Class MainPage
     Private Sub uiShowDetailsThis_Click(sender As Object, e As RoutedEventArgs)
         Dim oMFI As MenuFlyoutItem = sender
         Dim oItem As JedenChannel = oMFI.DataContext
-        DialogBox(oItem.sTooltip)
+        vblib.DialogBox(oItem.sTooltip)
     End Sub
 
     Private Async Sub uiGetBatch_Click(sender As Object, e As RoutedEventArgs)
@@ -148,7 +161,7 @@ Public NotInheritable Class MainPage
         Dim oItem As JedenChannel = oMFI.DataContext
 
         If oItem.sIdGapStart > oItem.sIdGapStop Then
-            DialogBox("Ale tu już nie ma gap'a...")
+            vblib.DialogBox("Ale tu już nie ma gap'a...")
             Return
         End If
 
@@ -159,9 +172,9 @@ Public NotInheritable Class MainPage
             If oChann.IsUrlSupported(oItem.sUrl) Then
                 Dim iRet As Integer = Await oChann.DownloadNextHistoryBatchAsync(uiProgBar, oItem, 30)
                 If iRet < 0 Then
-                    DialogBox("nie udalo się ściągnąć paczki z historii...")
+                    vblib.DialogBox("nie udalo się ściągnąć paczki z historii...")
                 Else
-                    DialogBox("Ściągnąłem " & iRet & " obrazków, pooglądaj sobie") ' nie czekaj
+                    vblib.DialogBox("Ściągnąłem " & iRet & " obrazków, pooglądaj sobie") ' nie czekaj
                     oItem.sTooltip = CreateChannelToolTip(oItem)
                     Await SaveChannelsAsync() ' czekaj - żeby nie było równoległego sięgania do dysku
                     ChangePicture(oItem, sGapStart) ' nie czekaj - kontynuacja w tle
@@ -254,8 +267,8 @@ Public NotInheritable Class MainPage
     Private Sub uiGetPath_Click(sender As Object, e As RoutedEventArgs)
         'Dim oMFI As MenuFlyoutItem = sender
         'Dim oItem As JedenChannel = oMFI.DataContext
-        ClipPut(_sPicShownPath)
-        DialogBox("Path obrazka już w clipboard")
+        vblib.ClipPut(_sPicShownPath)
+        vblib.DialogBox("Path obrazka już w clipboard")
     End Sub
     Private Sub uiGetUrl_Click(sender As Object, e As RoutedEventArgs)
 
@@ -264,8 +277,8 @@ Public NotInheritable Class MainPage
 
         For Each oChann In App.gaSrc
             If oChann.IsUrlSupported(_oChannel.sUrl) Then
-                ClipPut(oChann.GetUrl(_oChannel, sFileName))
-                DialogBox("URL obrazka już w clipboard")
+                vblib.ClipPut(oChann.GetUrl(_oChannel, sFileName))
+                vblib.DialogBox("URL obrazka już w clipboard")
                 Exit For
             End If
         Next

@@ -48,7 +48,7 @@
         Dim oResp As Windows.Web.Http.HttpResponseMessage
         Dim oHttp As Windows.Web.Http.HttpClient = New Windows.Web.Http.HttpClient
         oResp = Await oHttp.GetAsync(New Uri(sUrl))
-        If oResp.StatusCode > 290 Then Return ""
+        If oResp.StatusCode > 290 Then Return False
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile(oChannel.sDirName, sPicName, True)
         If oFile Is Nothing Then Return False

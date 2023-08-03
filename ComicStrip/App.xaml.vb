@@ -1,4 +1,7 @@
-﻿NotInheritable Class App
+﻿Imports pkar
+Imports pkar.Uwp.Ext
+
+NotInheritable Class App
     Inherits Application
 
     'Public Sub App()
@@ -19,6 +22,8 @@
     ' RemoteSystems, Timer
     Protected Overrides Async Sub OnBackgroundActivated(args As BackgroundActivatedEventArgs)
         moTaskDeferal = args.TaskInstance.GetDeferral() ' w pkarmodule.App
+
+        InitLib(Nothing)
 
         Dim bNoComplete As Boolean = False
         Dim bObsluzone As Boolean = False
@@ -51,6 +56,7 @@
             Dim strArgs As String = operation?.Arguments
 
             If Not String.IsNullOrEmpty(strArgs) Then
+                InitLib(Environment.GetCommandLineArgs.ToList)
                 Await ObsluzCommandLine(strArgs)
                 Window.Current.Close()
                 Return
@@ -88,6 +94,8 @@
             Window.Current.Content = mRootFrame
         End If
 
+        InitLib(Environment.GetCommandLineArgs.ToList)
+
         Return mRootFrame
     End Function
 
@@ -95,11 +103,11 @@
         Dim RootFrame As Frame = OnLaunchFragment(e.PreviousExecutionState)
 
         If e.PrelaunchActivated = False Then
-            If rootFrame.Content Is Nothing Then
+            If RootFrame.Content Is Nothing Then
                 ' When the navigation stack isn't restored navigate to the first page,
                 ' configuring the new page by passing required information as a navigation
                 ' parameter
-                rootFrame.Navigate(GetType(MainPage), e.Arguments)
+                RootFrame.Navigate(GetType(MainPage), e.Arguments)
             End If
 
             ' Ensure the current window is active
@@ -190,7 +198,7 @@
                 If oTB Is Nothing Then
                     MakeToast(sToast)
                 Else
-                    DialogBox(sToast)   ' podczas gdy sobie odklikuję, to on zapisuje
+                    vblib.DialogBox(sToast)   ' podczas gdy sobie odklikuję, to on zapisuje
                 End If
             End If
 
@@ -198,7 +206,8 @@
                 oTB.Text = iNewsCount & " new pics"
             End If
 
-            pkar.SetSettingsString("lastRun", DateTime.Now.ToString("yyyy.MM.dd HH:mm"))
+            vblib.SetSettingsString("lastRun", DateTime.Now.ToString("yyyy.MM.dd HH:mm"))
+            ' vblib.SetSettingsDate() daje z sekundami, tam można zrobić "bez sekund" pole!
 
             If Not bChannelsDirty Then Return
 
@@ -254,5 +263,6 @@
         New Source_ComicStrip
     }
 
+    'Public Shared _kanaly As BaseList(Of JedenChannel)
 
 End Class

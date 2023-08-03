@@ -1,6 +1,10 @@
 ﻿Imports Newtonsoft.Json
+Imports pkar
+Imports vblib
 
 Public Class JedenChannel
+    Inherits BaseStruct
+
     Public Property bEnabled As Boolean = True
     Public Property sUrl As String
     Public Property sFullName As String
@@ -19,6 +23,8 @@ Public Class JedenChannel
 End Class
 
 Public Class JedenPictureData
+    Inherits BaseStruct
+
     Public Property sFileName As String
     Public Property sDymki As String
     Public Property sDymkiPl As String
@@ -26,6 +32,8 @@ End Class
 
 
 Public Class JedenNewPicture
+    Inherits BaseStruct
+
     Public Property oChannel As JedenChannel
     Public Property oPicture As JedenPictureData
 End Class
