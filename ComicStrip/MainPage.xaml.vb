@@ -3,6 +3,8 @@ Imports pkar.Uwp.Configs
 Imports pkar.Uwp.Ext
 Imports pkar
 Imports Windows.Storage
+Imports pkar.Uwp.Triggers
+Imports Windows.ApplicationModel.DataTransfer
 
 Public NotInheritable Class MainPage
     Inherits Page
@@ -93,7 +95,7 @@ Public NotInheritable Class MainPage
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", False)
         If oFile Is Nothing Then
             _kanaly = New ObservableCollection(Of JedenChannel)
-            Await vblib.DialogBoxAsync("Empty channel list")
+            Await Me.MsgBoxAsync("Empty channel list")
         Else
             Dim sTxt As String = Await oFile.ReadAllTextAsync()
             _kanaly = Newtonsoft.Json.JsonConvert.DeserializeObject(sTxt, GetType(ObservableCollection(Of JedenChannel)))
@@ -130,7 +132,7 @@ Public NotInheritable Class MainPage
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", True)
         If oFile Is Nothing Then
-            Await vblib.DialogBoxAsync("Nie mogę dostać oFile do zapisania kanałów")
+            Await Me.MsgBoxAsync("Nie mogę dostać oFile do zapisania kanałów")
             Return False
         End If
         Dim sTxt As String = Newtonsoft.Json.JsonConvert.SerializeObject(_kanaly)
@@ -153,7 +155,7 @@ Public NotInheritable Class MainPage
     Private Sub uiShowDetailsThis_Click(sender As Object, e As RoutedEventArgs)
         Dim oMFI As MenuFlyoutItem = sender
         Dim oItem As JedenChannel = oMFI.DataContext
-        vblib.DialogBox(oItem.sTooltip)
+        Me.MsgBox(oItem.sTooltip)
     End Sub
 
     Private Async Sub uiGetBatch_Click(sender As Object, e As RoutedEventArgs)
@@ -161,7 +163,7 @@ Public NotInheritable Class MainPage
         Dim oItem As JedenChannel = oMFI.DataContext
 
         If oItem.sIdGapStart > oItem.sIdGapStop Then
-            vblib.DialogBox("Ale tu już nie ma gap'a...")
+            Me.MsgBox("Ale tu już nie ma gap'a...")
             Return
         End If
 
@@ -172,9 +174,9 @@ Public NotInheritable Class MainPage
             If oChann.IsUrlSupported(oItem.sUrl) Then
                 Dim iRet As Integer = Await oChann.DownloadNextHistoryBatchAsync(uiProgBar, oItem, 30)
                 If iRet < 0 Then
-                    vblib.DialogBox("nie udalo się ściągnąć paczki z historii...")
+                    Me.MsgBox("nie udalo się ściągnąć paczki z historii...")
                 Else
-                    vblib.DialogBox("Ściągnąłem " & iRet & " obrazków, pooglądaj sobie") ' nie czekaj
+                    Me.MsgBox($"Ściągnąłem {iRet} obrazków, pooglądaj sobie") ' nie czekaj
                     oItem.sTooltip = CreateChannelToolTip(oItem)
                     Await SaveChannelsAsync() ' czekaj - żeby nie było równoległego sięgania do dysku
                     ChangePicture(oItem, sGapStart) ' nie czekaj - kontynuacja w tle
@@ -268,20 +270,56 @@ Public NotInheritable Class MainPage
         'Dim oMFI As MenuFlyoutItem = sender
         'Dim oItem As JedenChannel = oMFI.DataContext
         vblib.ClipPut(_sPicShownPath)
-        vblib.DialogBox("Path obrazka już w clipboard")
+        Me.MsgBox("Path obrazka już w clipboard")
     End Sub
     Private Sub uiGetUrl_Click(sender As Object, e As RoutedEventArgs)
 
+        Dim url As String = CalculateUrlForCurrent()
+        If String.IsNullOrEmpty(url) Then Return
+
+        vblib.ClipPut(url)
+        Me.MsgBox("URL obrazka już w clipboard")
+
+    End Sub
+
+    Private Function CalculateUrlForCurrent() As String
         Dim iInd As Integer = _sPicShownPath.LastIndexOf("\")
         Dim sFileName As String = _sPicShownPath.Substring(iInd + 1)
 
         For Each oChann In App.gaSrc
-            If oChann.IsUrlSupported(_oChannel.sUrl) Then
-                vblib.ClipPut(oChann.GetUrl(_oChannel, sFileName))
-                vblib.DialogBox("URL obrazka już w clipboard")
-                Exit For
-            End If
+            If oChann.IsUrlSupported(_oChannel.sUrl) Then Return oChann.GetUrl(_oChannel, sFileName)
         Next
+
+        Return ""
+    End Function
+
+    Private Sub Page_GotFocus(sender As Object, e As RoutedEventArgs)
+        If Date.Now.Hour > 20 OrElse Date.Now.Hour < 8 Then
+            uiGrid.Background = New SolidColorBrush(Windows.UI.Colors.DarkGray)
+        Else
+            uiGrid.Background = New SolidColorBrush(Windows.UI.Colors.LightGray)
+        End If
+    End Sub
+
+    Private Sub uiGetPicUrl_Click(sender As Object, e As RoutedEventArgs)
+        ' wyciągnięcie linku do wewnętrznego obrazka - jeśli się da na szybko
+        Dim url As String = CalculateUrlForCurrent()
+        If String.IsNullOrEmpty(url) Then Return
+
+        ' e, nie tak, bo przecież różne kanały, i poniekąd to już jest w Source
+    End Sub
+
+    Private Async Sub uiCopyPicFile_Click(sender As Object, e As RoutedEventArgs)
+        ' na wzór PicSorter
+
+        Dim lista As New List(Of StorageFile)
+        lista.Add(Await StorageFile.GetFileFromPathAsync(_sPicShownPath))
+
+        Dim dpack As New DataPackage()
+        dpack.SetStorageItems(lista, True)
+        Dim clipOpt As New ClipboardContentOptions With {.IsRoamable = False}
+        Clipboard.SetContentWithOptions(dpack, clipOpt)
+        Me.MsgBox("File in Clipboard")
 
     End Sub
 End Class

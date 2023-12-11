@@ -3,7 +3,6 @@
 Public NotInheritable Class ComicChannels
     Inherits Page
 
-
     Dim _kanaly As ObservableCollection(Of JedenChannel)
     Dim _oFold As Windows.Storage.StorageFolder = Windows.Storage.ApplicationData.Current.LocalFolder
 
@@ -25,7 +24,7 @@ Public NotInheritable Class ComicChannels
 
 
     Private Async Sub Page_Loaded(sender As Object, e As RoutedEventArgs)
-        uiVers.Text = GetAppVers()
+        uiVers.ShowAppVers(True)
 
         Dim oFile As Windows.Storage.StorageFile = Await GetPicFile("", "channels.json", False)
         If oFile Is Nothing Then
@@ -56,16 +55,16 @@ Public NotInheritable Class ComicChannels
 
     Private Async Sub uiSave_Click(sender As Object, e As RoutedEventArgs)
         Await SaveChannelsData()
-        Me.Frame.GoBack()
+        Me.GoBack
     End Sub
 
     Private Async Sub uiAdd_Click(sender As Object, e As RoutedEventArgs)
-        Dim sUrl As String = Await vblib.DialogBoxInputDirectAsync("Podaj link do pasków:")
+        Dim sUrl As String = Await Me.InputBoxAsync("Podaj link do pasków:")
         If sUrl = "" Then Return
 
         For Each oItem As JedenChannel In _kanaly
             If oItem.sUrl = sUrl Then
-                vblib.DialogBox("taki kanał już istnieje!")
+                Me.MsgBox("taki kanał już istnieje!")
                 Return
             End If
         Next
@@ -79,7 +78,7 @@ Public NotInheritable Class ComicChannels
         Next
 
         If Not bSupported Then
-            vblib.DialogBox("nie umiem obsłużyć takiego kanału!")
+            Me.MsgBox("nie umiem obsłużyć takiego kanału!")
             Return
         End If
 
@@ -97,7 +96,7 @@ Public NotInheritable Class ComicChannels
         ProgresywnyRing(False)
 
         If oChannel Is Nothing Then
-            vblib.DialogBox("Błąd dodawania kanału!")
+            Me.MsgBox("Błąd dodawania kanału!")
             Return
         End If
 
@@ -122,6 +121,6 @@ Public NotInheritable Class ComicChannels
     End Sub
 
     Private Sub uiDelChannel_Click(sender As Object, e As RoutedEventArgs)
-        vblib.DialogBox("unimplemented jeszcze")
+        Me.MsgBox("unimplemented jeszcze")
     End Sub
 End Class

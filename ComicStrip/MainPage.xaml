@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Page_Loaded">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Page_Loaded" GotFocus="Page_GotFocus">
 
     <Grid Margin="5,5,5,5" Name="uiGrid" Background="LightGray" >
         <Grid.RowDefinitions>
@@ -67,7 +67,10 @@
                         <MenuFlyout>
                             <MenuFlyoutItem Text="change size" Click="uiPic_Tapped" />
                             <MenuFlyoutItem Text="get path" Click="uiGetPath_Click" />
-                            <MenuFlyoutItem Text="get URL" Click="uiGetUrl_Click" />
+                            <MenuFlyoutItem Text="get day URL" Click="uiGetUrl_Click" />
+                            <MenuFlyoutItem Text="get pic URL" Click="uiGetPicUrl_Click" />
+                            <MenuFlyoutItem Text="copy pic file" Click="uiCopyPicFile_Click" />
+                            <MenuFlyoutSeparator/>
                             <MenuFlyoutItem Text="delete pic" Click="uiPicDelFromMenu_Click" />
                         </MenuFlyout>
                     </Image.ContextFlyout>
