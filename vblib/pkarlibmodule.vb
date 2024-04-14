@@ -346,11 +346,13 @@ Partial Public Module pkarlibmodule14
     ''' <summary>
     ''' Dialog, z czekaniem
     ''' </summary>
+    <Obsolete("Gdy w XAML, użyj Nuget oraz Me.MsgBoxAsync")>
     Public Async Function DialogBoxAsync(sMsg As String) As Task
         If moUIdialogBox Is Nothing Then Throw New InvalidOperationException("DialogBoxAsync w VBLib wymaga wczesniejszego InitMsgBox")
         Await moUIdialogBox(sMsg)
     End Function
 
+    <Obsolete("Gdy w XAML, użyj Nuget oraz Me.MsgBox")>
     Public Sub DialogBox(sMsg As String)
 #Disable Warning BC42358 ' Because this call is not awaited, execution of the current method continues before the call is completed
         DialogBoxAsync(sMsg)
@@ -383,6 +385,7 @@ Partial Public Module pkarlibmodule14
     ''' <summary>
     ''' Dla Cancel zwraca ""
     ''' </summary>
+    <Obsolete("Gdy w XAML, użyj Nuget oraz Me.InputBoxAsync")>
     Public Async Function DialogBoxInputAllDirectAsync(sMsg As String, Optional sDefault As String = "", Optional sYes As String = "Yes", Optional sNo As String = "No") As Task(Of String)
         If moUIdialogBoxInput Is Nothing Then Throw New InvalidOperationException("DialogBoxInputAllDirectAsync w VBLib wymaga wczesniejszego InitMsgBox")
         Return Await moUIdialogBoxInput(sMsg, sDefault, sYes, sNo)
